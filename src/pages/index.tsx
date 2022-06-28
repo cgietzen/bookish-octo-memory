@@ -1,29 +1,12 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 
-import {prisma} from '../db/client'
+import {trpc} from '../utils/trpc'
 
 export default function Home (props: any) {
-  return (
-    <div>
-      <main>
-        <h1 className="text-xl font-bold">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-      </main>
-      <code>
-          {props.questions}
-      </code>
-    </div>
-  )
-}
+    const {data, isLoading} = trpc.useQuery(["getAllQuestions"])
 
-export const getServerSideProps = async () => {
-    const questions = await prisma.pollQuestion.findMany();
+    if (isLoading || !data) return <div>loading...</div>
 
-    return {
-        props: {
-            questions: JSON.stringify(questions)
-        }
-    }
+    return <div>{data[0]?.question}</div>
 }
